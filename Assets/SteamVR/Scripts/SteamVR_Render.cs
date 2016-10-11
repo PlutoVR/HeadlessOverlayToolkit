@@ -345,29 +345,14 @@ public class SteamVR_Render : MonoBehaviour
 #endif
 	}
 
-#if !(UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
-	private SteamVR_UpdatePoses poseUpdater;
-#endif
-
 	void Update()
 	{
-#if !(UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
-		if (poseUpdater == null)
-		{
-			var go = new GameObject("poseUpdater");
-			go.transform.parent = transform;
-			poseUpdater = go.AddComponent<SteamVR_UpdatePoses>();
-		}
-#else
 		if (cameras.Length == 0)
 		{
 			enabled = false;
 			return;
 		}
 
-		// If our FixedUpdate rate doesn't match our render framerate, then catch the handoff here.
-		SteamVR_Utils.QueueEventOnRenderThread(SteamVR.Unity.k_nRenderEventID_PostPresentHandoff);
-#endif
 		// Force controller update in case no one else called this frame to ensure prevState gets updated.
 		SteamVR_Controller.Update();
 

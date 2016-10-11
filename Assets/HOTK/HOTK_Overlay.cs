@@ -4,6 +4,13 @@ using UnityEngine;
 using Valve.VR;
 using Random = System.Random;
 
+public enum PanoType
+{
+	None,
+	Mono,
+	Stereo
+}
+
 public class HOTK_Overlay : MonoBehaviour
 {
     #region Custom Inspector Vars
@@ -35,6 +42,8 @@ public class HOTK_Overlay : MonoBehaviour
     public bool Antialias;
     [Tooltip("This causes the Overlay to draw curved. Requires High Quality.")]
     public bool Curved;
+
+	public PanoType PanoType = PanoType.None;
 
     public Vector4 UvOffset = new Vector4(0, 0, 1, 1);
     public Vector2 MouseScale = Vector3.one;
@@ -619,8 +628,23 @@ public class HOTK_Overlay : MonoBehaviour
             overlay.SetOverlayAlpha(_handle, AnimateOnGaze == AnimationType.Alpha || AnimateOnGaze == AnimationType.AlphaAndScale ? _alpha : Alpha);
             overlay.SetOverlayWidthInMeters(_handle, AnimateOnGaze == AnimationType.Scale || AnimateOnGaze == AnimationType.AlphaAndScale ? _scale : Scale);
             overlay.SetOverlayAutoCurveDistanceRangeInMeters(_handle, CurvedRange.x, CurvedRange.y);
+	        if (PanoType == PanoType.Stereo)
+	        {
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.Panorama, false);
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.StereoPanorama, true);
+	        }
+			else if (PanoType == PanoType.Mono)
+			{
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.StereoPanorama, false);
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.Panorama, true);
+			}
+			else
+			{
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.Panorama, false);
+				overlay.SetOverlayFlag(_handle, VROverlayFlags.StereoPanorama, false);
+			}
 
-            var textureBounds = new VRTextureBounds_t
+	        var textureBounds = new VRTextureBounds_t
             {
                 uMin = (0 + UvOffset.x) * UvOffset.z, vMin = (1 + UvOffset.y) * UvOffset.w,
                 uMax = (1 + UvOffset.x) * UvOffset.z, vMax = (0 + UvOffset.y) * UvOffset.w
